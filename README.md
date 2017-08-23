@@ -55,10 +55,13 @@ faceApi.detect(imageBuffer)
     })
     .catch((err) => {
         // If no faces are detected, an error will be returned
-        // An error can occur too if an incorrect/invalid Face API subscription key or any other incorrect parameters is provided. For more information on the kind of errors that Microsoft's Face API returns, please refer to https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236
+        // An error can occur too if an incorrect/invalid Face API subscription key or any other incorrect parameters is provided. 
+        // For more information on the kind of errors that Microsoft's Face API returns, please refer to https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236
         console.log(err);
     });
 ```
+
+Documentation will be subsequently updated.
 
 
 
