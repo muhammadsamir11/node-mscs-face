@@ -13,3 +13,17 @@ const FaceApi = require('node-mscs-face');
 var faceApi = new FaceApi('faceapi_subscription_key', 'region');
 ```
 
+## Table of contents
+- [Region](#region)
+- [Detect](#detect)
+- [Identify](#identify)
+- [Add Face](#add-face)
+- [Delete Face](#delete-face)
+- [Create Person](#create-person)
+- [Delete Person](#delete-person)
+- [Train Person Group](#train-person-group)
+- [Custom Implementations](#custom-implementations)
+- [Things to Do](#things-to-do)
+
+Services that are being wrapped for Face API are stated in the table of contents above. Services not mentioned for Face API are currently all work in progress.
+
