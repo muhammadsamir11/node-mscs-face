@@ -44,7 +44,7 @@ var faceApi = new FaceApi('faceapi_subscription_key', SEA); // WUS, EUS2, WCUS, 
 The detect function takes in an image in a format suitable for an octet-stream and resolves an array of objects containing FaceIds and Face Rectangles of detected faces. If no faces are detected, an error will return.
 
 ```js
-faceApi.detect()
+faceApi.detect(imageBuffer)
     .then((faceInfo) => {
         // Resolves faceInfo, an array
         faceInfo.forEach((detectedFace) => {
