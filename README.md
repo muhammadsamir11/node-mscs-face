@@ -1,5 +1,6 @@
 # node-mscs-face
 A javascript wrapper for Microsoft Cognitive Services' Face API.
+We are in no way affiliated to Microsoft.
 
 ## Easy to start using
 This module is based off a wrapper wrote for Microsoft Cognitive Services' Face API duing a major school project.
@@ -25,5 +26,8 @@ var faceApi = new FaceApi('faceapi_subscription_key', 'region');
 - [Custom Implementations](#custom-implementations)
 - [Things to Do](#things-to-do)
 
-Services that are being wrapped for Face API are stated in the table of contents above. Services not mentioned for Face API are currently all work in progress.
+Services that are being wrapped for Face API are stated in the table of contents above, everything else is work in progress.
+For Face API documentation, please refer to [Microsoft's Cognitive Services Face API References](https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236)
+
+
 
