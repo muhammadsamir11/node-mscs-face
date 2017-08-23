@@ -61,7 +61,7 @@ faceApi.detect(imageBuffer)
     });
 ```
 
-Documentation will be subsequently updated.
+## Documentation will be subsequently updated.
 
 
 
