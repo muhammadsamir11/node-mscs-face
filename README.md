@@ -37,7 +37,7 @@ Currently, this module supports `West US (WUS)`, `East US 2 (EUS2)`, `West Centr
 
 ```js
 // Pass in the region code to constructor
-var faceApi = new FaceApi('faceapi_subscription_key', SEA); // WUS, EUS2, WCUS, WEU & SEA are available
+var faceApi = new FaceApi('faceapi_subscription_key', 'SEA'); // WUS, EUS2, WCUS, WEU & SEA are available
 ```
 
 ## Detect
