@@ -1,6 +1,6 @@
 {
   "name": "node-mscs-face",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Javascript Wrapper for Microsoft Cognitive Services Face API.",
   "main": "index.js",
   "scripts": {
