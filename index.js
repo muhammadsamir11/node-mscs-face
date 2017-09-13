@@ -30,6 +30,9 @@ const regionArr = [{
 // Cognitive services face api base url
 const baseUrl = '.api.cognitive.microsoft.com/face/v1.0/';
 
+// Debug
+const debug = true;
+
 // Helper functions
 const matchRegion = (regionCode = '') => {
     // Declarations
@@ -110,7 +113,52 @@ FaceApi.prototype.detect = function (image) {
             })
             .catch((err) => {
                 // Log error
-                console.log(`An error occurred with detect: ${err.message}`);
+                if (debug) console.log(`An error occurred with detect: ${err.message}`);
+
+                // Reject promise with error
+                return reject(err);
+            });
+    });
+}
+
+// Detect image url function API wrapper
+FaceApi.prototype.detectUrl = function (url) {
+    return new Promise((resolve, reject) => {
+        // Declarations
+        var error;
+
+        // Construct query parameters
+        let params = {
+            returnFaceId: true,
+            returnFaceLandmarks: false
+        }
+
+        // Construct AJAX
+        request({
+                method: 'POST',
+                url: `${this.apiUrl}/detect?${querystring.stringify(params)}`,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Ocp-Apim-Subscription-Key': this.subscriptionKey
+                },
+                json: {
+                    'url': url
+                }
+            })
+            .then((faces) => {
+                // Determine if any faces are detected
+                if (faces.length === 0) {
+                    // Reject promise with error for 0 face detected
+                    error = new Error('No face is detected.');
+                    return reject(error);
+                } else {
+                    // Resolve promise with faceInfo object
+                    return resolve(faces);
+                }
+            })
+            .catch((err) => {
+                // Log error
+                if (debug) console.log(`An error occurred with detect: ${err.message}`);
 
                 // Reject promise with error
                 return reject(err);
@@ -139,14 +187,14 @@ FaceApi.prototype.createPerson = function (personGroupId, userData) {
                 let createdResponse = JSON.parse(resp);
 
                 // Logging
-                console.log(`Created user with personId: ${createdResponse.personId}`);
+                if (debug) console.log(`Created user with personId: ${createdResponse.personId}`);
 
                 // Resolve promise with personId
                 return resolve(createdResponse.personId);
             })
             .catch((err) => {
                 // Log error
-                console.log(`An error occurred with create person: ${err.message}`);
+                if (debug) console.log(`An error occurred with create person: ${err.message}`);
 
                 // Reject promise with error
                 return reject(err);
@@ -168,14 +216,14 @@ FaceApi.prototype.deletePerson = function (personGroupId, personId) {
             })
             .then((resp) => {
                 // Log response
-                console.log(`Delete Person successful!`);
+                if (debug) console.log(`Delete Person successful!`);
 
                 // Resolve promise
                 return resolve('');
             })
             .catch((err) => {
                 // Log error
-                console.log(`An error occurred with deletePerson: ${err.message}`);
+                if (debug) console.log(`An error occurred with deletePerson: ${err.message}`);
 
                 // Reject promise with error
                 return reject(err);
@@ -209,14 +257,54 @@ FaceApi.prototype.addFace = function (personGroupId, personId, faceRectangle, im
                 let createdResponse = JSON.parse(resp);
 
                 // Logging
-                console.log(`Added face to user with persistedFaceId: ${createdResponse.persistedFaceId}`);
+                if (debug) console.log(`Added face to user with persistedFaceId: ${createdResponse.persistedFaceId}`);
 
                 // Resolve promise with persistedFaceId
                 return resolve(createdResponse.persistedFaceId);
             })
             .catch((err) => {
                 // Log error
-                console.log(`An error occurred with addFace: ${err.message}`);
+                if (debug) console.log(`An error occurred with addFace: ${err.message}`);
+
+                // Reject promise with error
+                return reject(err);
+            });
+    });
+}
+
+// Add Face to Person function API wrapper
+FaceApi.prototype.addFaceUrl = function (personGroupId, personId, faceRectangle, url) {
+    return new Promise((resolve, reject) => {
+        // Declarations
+        var error;
+        // Construct query parameters
+        let params = {
+            userData: new Date().toISOString(),
+            targetFace: `${faceRectangle.left}, ${faceRectangle.top}, ${faceRectangle.width}, ${faceRectangle.height}`
+        };
+
+        // Construct AJAX
+        request({
+                method: 'POST',
+                url: `${this.apiUrl}/persongroups/${personGroupId}/persons/${personId}/persistedFaces?${querystring.stringify(params)}`,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Ocp-Apim-Subscription-Key': this.subscriptionKey
+                },
+                json: {
+                    'url': url
+                }
+            })
+            .then((createdResponse) => {
+                // Logging
+                if (debug) console.log(`Added face to user with persistedFaceId: ${createdResponse.persistedFaceId}`);
+
+                // Resolve promise with persistedFaceId
+                return resolve(createdResponse.persistedFaceId);
+            })
+            .catch((err) => {
+                // Log error
+                if (debug) console.log(`An error occurred with addFace: ${err.message}`);
 
                 // Reject promise with error
                 return reject(err);
@@ -239,20 +327,20 @@ FaceApi.prototype.createPersonGroupIfNotExist = function (personGroupId, personG
             })
             .then((resp) => {
                 // Logging
-                console.log(`Successfully created personGroup with id: ${personGroupId}`);
+                if (debug) console.log(`Successfully created personGroup with id: ${personGroupId}`);
 
                 // Resolve promise
-                return resolve('');
+                return resolve(`Successfully created personGroup with id: ${personGroupId}`);
             })
             .catch((err) => {
                 // Control flow to determine error
                 if (err.statusCode === 409) {
                     // If error is 409, resolve promise
-                    console.log(`Person group already exists.`);
-                    return resolve('');
+                    if (debug) console.log(`Person group already exists.`);
+                    return resolve('Person group already exists.');
                 } else {
                     // Log error
-                    console.log(`An error occurred with createPersonGroup: ${err}`);
+                    if (debug) console.log(`An error occurred with createPersonGroup: ${err}`);
 
                     // Reject promise with error
                     return reject(err);
@@ -275,14 +363,14 @@ FaceApi.prototype.deleteFace = function (personGroupId, personId, faceId) {
             })
             .then((resp) => {
                 // Logging
-                console.log('Successfully removed face from person.');
+                if (debug) console.log('Successfully removed face from person.');
 
                 // Resolve promise
                 resolve('');
             })
             .catch((err) => {
                 // Log error
-                console.log(`An error occurred with deleteFace: ${err.message}`);
+                if (debug) console.log(`An error occurred with deleteFace: ${err.message}`);
 
                 // Reject promise with error
                 reject(err);
@@ -304,14 +392,14 @@ FaceApi.prototype.trainPersonGroup = function (personGroupId) {
             })
             .then((resp) => {
                 // Logging
-                console.log(`Train group request sent.`);
+                if (debug) console.log(`Train group request sent.`);
 
                 // Resolve promise
                 resolve('');
             })
             .catch((err) => {
                 // Log error
-                console.log(`An error occurred with trainPersonGroup: ${err.message}`);
+                if (debug) console.log(`An error occurred with trainPersonGroup: ${err.message}`);
 
                 // Reject promise with error
                 return reject(err);
@@ -339,7 +427,7 @@ FaceApi.prototype.identify = function (personGroupId, faceIds, maxNumOfCandidate
             })
             .then((resp) => {
                 // Logging
-                console.log(`Successfully completed identification process.`);
+                if (debug) console.log(`Successfully completed identification process.`);
 
                 // Parse JSON and assign it to result variable
                 let result = JSON.parse(resp);
@@ -352,7 +440,76 @@ FaceApi.prototype.identify = function (personGroupId, faceIds, maxNumOfCandidate
             })
             .catch((err) => {
                 // Log error
-                console.log(`An error occurred with identify: ${err.message}`);
+                if (debug) console.log(`An error occurred with identify: ${err.message}`);
+
+                // Reject promise with error
+                return reject(err);
+            });
+    });
+}
+
+// Identify function API wrapper
+FaceApi.prototype.getPerson = function (personGroupId, personId) {
+    return new Promise((resolve, reject) => {
+        // Construct AJAX
+        request({
+                method: 'GET',
+                url: `${this.apiUrl}/personGroups/${personGroupId}/persons/${personId}`,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Ocp-Apim-Subscription-Key': this.subscriptionKey
+                }
+            })
+            .then((resp) => {
+                // Logging
+                if (debug) console.log(`Successfully get person details.`);
+
+                // Parse JSON and assign it to result variable
+                let result = JSON.parse(resp);
+
+                // Store candidates from results
+                var person = result;
+
+                // Resolve promise with candidates
+                return resolve(person);
+            })
+            .catch((err) => {
+                // Log error
+                if (debug) console.log(`An error occurred with identify: ${err.message}`);
+
+                // Reject promise with error
+                return reject(err);
+            });
+    });
+}
+
+FaceApi.prototype.listPersons = function (personGroupId) {
+    return new Promise((resolve, reject) => {
+        // Construct AJAX
+        request({
+                method: 'GET',
+                url: `${this.apiUrl}/personGroups/${personGroupId}/persons`,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Ocp-Apim-Subscription-Key': this.subscriptionKey
+                }
+            })
+            .then((resp) => {
+                // Logging
+                if (debug) console.log(`Successfully get persons`);
+
+                // Parse JSON and assign it to result variable
+                let result = JSON.parse(resp);
+
+                // Store candidates from results
+                var persons = result;
+
+                // Resolve promise with candidates
+                return resolve(persons);
+            })
+            .catch((err) => {
+                // Log error
+                if (debug) console.log(`An error occurred with get persons: ${err.message}`);
 
                 // Reject promise with error
                 return reject(err);
@@ -363,29 +520,38 @@ FaceApi.prototype.identify = function (personGroupId, faceIds, maxNumOfCandidate
 // Custom, not regular APIs
 // Extremely opinionated for my own solution
 // Create full person
-FaceApi.prototype.createFullPerson = function (image, userInformation, personGroupId) {
+FaceApi.prototype.createFullPerson = function (url, userInformation, personGroupId) {
     return new Promise((resolve, reject) => {
         // Declarations
         var detectFaceRectangle;
         var respObject = new Object();
 
         // Detect person in image
-        this.detect(image)
-            .then((faceInfo) => {
+        this.detectUrl(url)
+            .then((faces) => {
+                // Log error
+                if (debug) console.log(`Detect face`);
+
                 // Assign face rectangle to detectFaceRectangle variable
-                detectFaceRectangle = faceInfo[0].faceRectangle;
+                detectFaceRectangle = faces[0].faceRectangle;
 
                 // Create a person instance in cognitive services
                 return this.createPerson(personGroupId, userInformation);
             })
             .then((personId) => {
+                // Log error
+                if (debug) console.log(`Create person`);
+
                 // Add personId to respObject
                 respObject.personId = personId;
 
                 // Person is created, proceed to add Face to person
-                return this.addFace(personGroupId, personId, detectFaceRectangle, image);
+                return this.addFaceUrl(personGroupId, personId, detectFaceRectangle, url);
             })
             .then((persistedFaceId) => {
+                // Log error
+                if (debug) console.log(`Add Face to person`);
+
                 // Add persistedFaceId to respObject
                 respObject.persistedFaceId = persistedFaceId;
 
@@ -394,7 +560,7 @@ FaceApi.prototype.createFullPerson = function (image, userInformation, personGro
             })
             .catch((err) => {
                 // Log error
-                console.log(`Create full person error: ${err}`);
+                if (debug) console.log(`Create full person error: ${err}`);
 
                 // Delete Person if person is created alr
                 if (respObject.personId !== undefined) {
@@ -436,7 +602,7 @@ FaceApi.prototype.updatePersonWithSingle = function (image, userInformation, per
             })
             .catch((err) => {
                 // Log error
-                console.log(`Update person with single error: ${err}`);
+                if (debug) console.log(`Update person with single error: ${err}`);
 
                 // Reject promise with error
                 return reject(err);
@@ -458,7 +624,7 @@ FaceApi.prototype.recognize = function (image, personGroupId, maxNumOfCandidates
                 faceIds.push(foundFaceId);
 
                 // Logging
-                console.log(`Detection completed for recognition process, proceeding to identification.`);
+                if (debug) console.log(`Detection completed for recognition process, proceeding to identification.`);
 
                 // Identify person with faceIds from faceInfo
                 return this.identify(personGroupId, faceIds, maxNumOfCandidatesReturned, minimumConfidence);
@@ -467,7 +633,7 @@ FaceApi.prototype.recognize = function (image, personGroupId, maxNumOfCandidates
                 // Control flow to validate if anyone is identified and what to do with data
                 if (candidates.length > 0) {
                     // Logging
-                    console.log(`People successfully identified from image, getting information for the most familiar candidate identified.`);
+                    if (debug) console.log(`People successfully identified from image, getting information for the most familiar candidate identified.`);
 
                     // Construct candidate object for single closest identified person
                     let candidate = new Object();
@@ -478,7 +644,7 @@ FaceApi.prototype.recognize = function (image, personGroupId, maxNumOfCandidates
                     return resolve(candidate);
                 } else {
                     // Logging
-                    console.log(`No one is identified in image, resolving promise with a null.`);
+                    if (debug) console.log(`No one is identified in image, resolving promise with a null.`);
 
                     // Resolve with null if no one is identified in image
                     return resolve(null);
@@ -486,7 +652,7 @@ FaceApi.prototype.recognize = function (image, personGroupId, maxNumOfCandidates
             })
             .catch((err) => {
                 // Log error
-                console.log(`An error occurred with recognize: ${err.message}`);
+                if (debug) console.log(`An error occurred with recognize: ${err.message}`);
 
                 // Reject promise with error
                 return reject(err);
