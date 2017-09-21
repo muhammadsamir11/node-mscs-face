@@ -573,6 +573,59 @@ FaceApi.prototype.createFullPerson = function (url, userInformation, personGroup
     });
 }
 
+FaceApi.prototype.createFullPersonBuff = function (buff, userInformation, personGroupId) {
+    return new Promise((resolve, reject) => {
+        // Declarations
+        var detectFaceRectangle;
+        var respObject = new Object();
+
+        // Detect person in image
+        this.detect(buff)
+            .then((faces) => {
+                // Log error
+                if (debug) console.log(`Detect face`);
+
+                // Assign face rectangle to detectFaceRectangle variable
+                detectFaceRectangle = faces[0].faceRectangle;
+
+                // Create a person instance in cognitive services
+                return this.createPerson(personGroupId, userInformation);
+            })
+            .then((personId) => {
+                // Log error
+                if (debug) console.log(`Create person`);
+
+                // Add personId to respObject
+                respObject.personId = personId;
+
+                // Person is created, proceed to add Face to person
+                return this.addFace(personGroupId, personId, detectFaceRectangle, buff);
+            })
+            .then((persistedFaceId) => {
+                // Log error
+                if (debug) console.log(`Add Face to person`);
+
+                // Add persistedFaceId to respObject
+                respObject.persistedFaceId = persistedFaceId;
+
+                // Return resolve of respObject
+                return resolve(respObject);
+            })
+            .catch((err) => {
+                // Log error
+                if (debug) console.log(`Create full person error: ${err}`);
+
+                // Delete Person if person is created alr
+                if (respObject.personId !== undefined) {
+                    this.deletePerson(personGroupId, respObject.personId);
+                }
+
+                // Reject promise with error
+                return reject(err);
+            });
+    });
+}
+
 // Update person with single image
 FaceApi.prototype.updatePersonWithSingle = function (image, userInformation, personGroupId, personId, oldPersistedFaceId) {
     return new Promise((resolve, reject) => {
