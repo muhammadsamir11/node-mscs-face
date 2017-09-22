@@ -448,6 +448,43 @@ FaceApi.prototype.identify = function (personGroupId, faceIds, maxNumOfCandidate
     });
 }
 
+FaceApi.prototype.identifyAll = function (personGroupId, faceIds, maxNumOfCandidatesReturned, minimumConfidence) {
+    return new Promise((resolve, reject) => {
+        // Construct AJAX
+        request({
+                method: 'POST',
+                url: `${this.apiUrl}/identify`,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Ocp-Apim-Subscription-Key': this.subscriptionKey
+                },
+                body: JSON.stringify({
+                    personGroupId: personGroupId,
+                    faceIds: faceIds,
+                    maxNumOfCandidatesReturned: maxNumOfCandidatesReturned,
+                    confidenceThreshold: minimumConfidence
+                })
+            })
+            .then((resp) => {
+                // Logging
+                if (debug) console.log(`Successfully completed identification process.`);
+
+                // Parse JSON and assign it to result variable
+                let result = JSON.parse(resp);
+
+                // Resolve promise with candidates
+                return resolve(result);
+            })
+            .catch((err) => {
+                // Log error
+                if (debug) console.log(`An error occurred with identify: ${err.message}`);
+
+                // Reject promise with error
+                return reject(err);
+            });
+    });
+}
+
 // Identify function API wrapper
 FaceApi.prototype.getPerson = function (personGroupId, personId) {
     return new Promise((resolve, reject) => {
